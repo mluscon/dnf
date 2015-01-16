@@ -122,3 +122,10 @@ class ProcessLockTest(tests.support.TestCase):
             thread.start()
             thread.join()
         self.assertIsInstance(thread.queue.get(), ThreadLockError)
+
+    def test_wrongly_created_lock(self):
+        l1 = build_lock()
+        open(l1.target, 'w').close()
+        with l1:
+            pass
+        self.assertPathDoesNotExist(l1.target)

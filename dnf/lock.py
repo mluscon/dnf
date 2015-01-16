@@ -84,7 +84,11 @@ class ProcessLock(object):
             with open(self.target, 'r') as f:
                 return int(f.readline())
         except IOError:
+            # lock has been already removed
             return -1
+        except ValueError:
+            # wrong content of lock
+            return -2
 
     def _try_unlink(self):
         try:
