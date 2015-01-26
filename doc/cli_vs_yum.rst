@@ -297,3 +297,9 @@ DNF will not magically replace a request for installing package ``X`` to install
 
 See the the related `Fedora bug 1096506
 <https://bugzilla.redhat.com/show_bug.cgi?id=1096506>`_ and `guidelines for renaming and obsoleting packages in Fedora <http://fedoraproject.org/wiki/Upgrade_paths_%E2%80%94_renaming_or_splitting_packages>`_.
+
+==========================================================
+ Partially successful commands returns non-zero exit code
+==========================================================
+
+DNF returns non-zero exit code for partially successful ``install``, ``reinstall`` and ``upgrade`` commands.
