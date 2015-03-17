@@ -11,7 +11,7 @@
 %global py3pluginpath %{python3_sitelib}/dnf-plugins
 
 Name:		dnf
-Version:	0.6.6
+Version:	0.6.7
 Release:	1%{?snapshot}%{?dist}
 Summary:	Package manager forked from Yum, using libsolv as a dependency resolver
 # For a breakdown of the licensing, see PACKAGE-LICENSING
@@ -227,6 +227,9 @@ popd
 %systemd_postun_with_restart dnf-automatic.timer
 
 %changelog
+* Tue Mar 17 2015 Michal Luscon <mluscon@redhat.com> 0.6.7-1
+- 
+
 * Tue Mar 17 2015 Michal Luscon <mluscon@redhat.com> 0.6.6-1
 - first tito build
 
