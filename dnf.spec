@@ -11,7 +11,7 @@
 %global py3pluginpath %{python3_sitelib}/dnf-plugins
 
 Name:		dnf
-Version:	0.6.5
+Version:	0.6.6
 Release:	1%{?snapshot}%{?dist}
 Summary:	Package manager forked from Yum, using libsolv as a dependency resolver
 # For a breakdown of the licensing, see PACKAGE-LICENSING
@@ -227,6 +227,9 @@ popd
 %systemd_postun_with_restart dnf-automatic.timer
 
 %changelog
+* Tue Mar 17 2015 Michal Luscon <mluscon@redhat.com> 0.6.6-1
+- first tito build
+
 
 * Wed Feb 4 2015 Jan Silhan <jsilhan@redhat.com> - 0.6.4-1
 - Adapt to librepo-1.7.13, metalink and mirrorlist are not loaded anymore when the repo is local. (Radek Holy)
