@@ -7,7 +7,6 @@
 
 %global pluginconfpath %{confdir}/plugins
 %global py2pluginpath %{python_sitelib}/dnf-plugins
-%global py3pluginpath %{python3_sitelib}/dnf-plugins
 
 Name:		dnf
 Version:	1.0.1
@@ -28,11 +27,7 @@ BuildRequires:  gettext
 BuildRequires:  python-bugzilla
 BuildRequires:  python-sphinx
 BuildRequires:  systemd
-%if 0%{?fedora} >= 23
-Requires:   python3-dnf = %{version}-%{release}
-%else
 Requires:   python-dnf = %{version}-%{release}
-%endif
 Requires(post):     systemd
 Requires(preun):    systemd
 Requires(postun):   systemd
@@ -45,13 +40,6 @@ Summary:    Configuration files for DNF.
 %description conf
 Configuration files for DNF.
 
-%package -n dnf-yum
-Conflicts:      yum < 3.4.3-505
-Requires:   dnf = %{version}-%{release}
-Summary:    As a Yum CLI compatibility layer, supplies /usr/bin/yum redirecting to DNF.
-%description -n dnf-yum
-As a Yum CLI compatibility layer, supplies /usr/bin/yum redirecting to DNF.
-
 %package -n python-dnf
 Summary:    Python 2 interface to DNF.
 BuildRequires:  pygpgme
@@ -63,9 +51,6 @@ BuildRequires:  python-libcomps >= %{libcomps_version}
 BuildRequires:  python-librepo >= %{librepo_version}
 BuildRequires:  python-nose
 BuildRequires:  rpm-python >= %{rpm_version}
-%if 0%{?fedora} >= 21
-Recommends: bash-completion
-%endif
 Requires:   dnf-conf = %{version}-%{release}
 Requires:   deltarpm
 Requires:   pygpgme
@@ -80,33 +65,6 @@ Obsoletes:  dnf <= 0.6.4
 %description -n python-dnf
 Python 2 interface to DNF.
 
-%package -n python3-dnf
-Summary:    Python 3 interface to DNF.
-BuildRequires:  python3
-BuildRequires:  python3-devel
-BuildRequires:  python3-hawkey >= %{hawkey_version}
-BuildRequires:  python3-iniparse
-BuildRequires:  python3-libcomps >= %{libcomps_version}
-BuildRequires:  python3-librepo >= %{librepo_version}
-BuildRequires:  python3-nose
-BuildRequires:  python3-pygpgme
-BuildRequires:  rpm-python3 >= %{rpm_version}
-%if 0%{?fedora} >= 21
-Recommends: bash-completion
-%endif
-Requires:   dnf-conf = %{version}-%{release}
-Requires:   deltarpm
-Requires:   python3-hawkey >= %{hawkey_version}
-Requires:   python3-iniparse
-Requires:   python3-libcomps >= %{libcomps_version}
-Requires:   python3-librepo >= %{librepo_version}
-Requires:   python3-pygpgme
-Requires:   rpm-plugin-systemd-inhibit
-Requires:   rpm-python3 >= %{rpm_version}
-Obsoletes:  dnf <= 0.6.4
-%description -n python3-dnf
-Python 3 interface to DNF.
-
 %package automatic
 Summary:    Alternative CLI to "dnf upgrade" suitable for automatic, regular execution.
 BuildRequires:  systemd
@@ -119,53 +77,31 @@ Alternative CLI to "dnf upgrade" suitable for automatic, regular execution.
 
 %prep
 %setup -q -n dnf-%{version}
-rm -rf py3
-mkdir ../py3
-cp -a . ../py3/
-mv ../py3 ./
 
 %build
 %cmake .
 make %{?_smp_mflags}
 make doc-man
-pushd py3
-%cmake -DPYTHON_DESIRED:str=3 -DWITH_MAN=0 .
-make %{?_smp_mflags}
-popd
 
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
 %find_lang %{name}
-pushd py3
-make install DESTDIR=$RPM_BUILD_ROOT
-popd
 
 mkdir -p $RPM_BUILD_ROOT%{pluginconfpath}
 mkdir -p $RPM_BUILD_ROOT%{py2pluginpath}
-mkdir -p $RPM_BUILD_ROOT%{py3pluginpath}/__pycache__
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log
 touch $RPM_BUILD_ROOT%{_localstatedir}/log/%{name}.log
-%if 0%{?fedora} >= 23
-ln -sr $RPM_BUILD_ROOT%{_bindir}/dnf-3 $RPM_BUILD_ROOT%{_bindir}/dnf
-mv $RPM_BUILD_ROOT%{_bindir}/dnf-automatic-3 $RPM_BUILD_ROOT%{_bindir}/dnf-automatic
-rm $RPM_BUILD_ROOT%{_bindir}/dnf-automatic-2
-%else
 ln -sr $RPM_BUILD_ROOT%{_bindir}/dnf-2 $RPM_BUILD_ROOT%{_bindir}/dnf
 mv $RPM_BUILD_ROOT%{_bindir}/dnf-automatic-2 $RPM_BUILD_ROOT%{_bindir}/dnf-automatic
 rm $RPM_BUILD_ROOT%{_bindir}/dnf-automatic-3
-%endif
 
 %check
 make ARGS="-V" test
-pushd py3
-make ARGS="-V" test
-popd
 
 %files -f %{name}.lang
 %doc AUTHORS README.rst COPYING PACKAGE-LICENSING
 %{_bindir}/dnf
 %{_mandir}/man8/dnf.8.gz
-%{_mandir}/man8/yum2dnf.8.gz
 %{_unitdir}/dnf-makecache.service
 %{_unitdir}/dnf-makecache.timer
 
@@ -188,25 +124,12 @@ popd
 %{_tmpfilesdir}/dnf.conf
 %{_sysconfdir}/libreport/events.d/collect_dnf.conf
 
-%files -n dnf-yum
-%doc AUTHORS README.rst COPYING PACKAGE-LICENSING
-%{_bindir}/yum
-%{_mandir}/man8/yum.8.gz
-
 %files -n python-dnf
 %{_bindir}/dnf-2
 %doc AUTHORS README.rst COPYING PACKAGE-LICENSING
 %exclude %{python_sitelib}/dnf/automatic
 %{python_sitelib}/dnf/
 %dir %{py2pluginpath}
-
-%files -n python3-dnf
-%doc AUTHORS README.rst COPYING PACKAGE-LICENSING
-%{_bindir}/dnf-3
-%exclude %{python3_sitelib}/dnf/automatic
-%{python3_sitelib}/dnf/
-%dir %{py3pluginpath}
-%dir %{py3pluginpath}/__pycache__
 
 %files automatic
 %doc AUTHORS COPYING PACKAGE-LICENSING
@@ -215,12 +138,7 @@ popd
 %{_mandir}/man8/dnf.automatic.8.gz
 %{_unitdir}/dnf-automatic.service
 %{_unitdir}/dnf-automatic.timer
-%if 0%{?fedora} >= 23
-%{python3_sitelib}/dnf/automatic
-%{python3_sitelib}/dnf/automatic/__pycache__/*
-%else
 %{python_sitelib}/dnf/automatic
-%endif
 
 %post
 %systemd_post dnf-makecache.timer
