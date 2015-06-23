@@ -10,7 +10,7 @@
 
 Name:		dnf
 Version:	1.0.1
-Release:	1%{?snapshot}%{?dist}
+Release:	2%{?snapshot}%{?dist}
 Summary:	Package manager forked from Yum, using libsolv as a dependency resolver
 # For a breakdown of the licensing, see PACKAGE-LICENSING
 License:	GPLv2+ and GPLv2 and GPL
@@ -159,6 +159,11 @@ make ARGS="-V" test
 %systemd_postun_with_restart dnf-automatic.timer
 
 %changelog
+* Tue Jun 23 2015 Michal Luscon <mluscon@redhat.com> 1.0.1-2
+- group: fixed installing of already installed environment (Jan Silhan)
+- conf: change minrate threshold to librepo default (RhBug:1212320) (Michal
+  Luscon)
+
 * Tue Jun 09 2015 Michal Luscon <mluscon@redhat.com> 1.0.1-1
 - doc: document variables in repo conf (Michal Luscon)
 - groups: temporary fix for group remove (RhBug:1214968) (Michal Luscon)
