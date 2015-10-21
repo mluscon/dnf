@@ -317,6 +317,36 @@ class MockRepo(dnf.repo.Repo):
     def valid(self):
         return None
 
+
+class MockQuery(dnf.query.Query):
+    def __init__(self, query):
+        self.pkgs = [MockPackage(str(p)) for p in query.run()]
+        self.i = 0
+        self.n = len(self.pkgs)
+
+    def __getitem__(self, key):
+        if key < self.n:
+            return self.pkgs[key]
+        else:
+            raise KeyError()
+
+    def __iter__(self):
+        return self
+
+    def filter(self, pkg):
+        return pkg
+
+    def next(self):
+        if self.i < self.n:
+            i = self.i
+            self.i += 1
+            return self.pkgs[i]
+        else:
+            raise StopIteration()
+
+    def run(self):
+        return self.pkgs
+
 class MockTerminal(object):
     def __init__(self):
         self.MODE = {'bold'   : '', 'normal' : ''}
