@@ -56,6 +56,12 @@ class Goal(hawkey.Goal):
             if reason != 'dep':
                 self.userinstalled(pkg)
 
+    def unneeded_remove_run_diff(self):
+        all = set(self.list_erasures)
+
+        ng = deepcopy(self)
+
+
     def best_run_diff(self):
 
         def pop_from_set(pkg_set, name, arch):

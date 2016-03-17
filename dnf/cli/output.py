@@ -46,11 +46,18 @@ import time
 logger = logging.getLogger('dnf')
 
 
-def _make_lists(transaction):
+def _make_lists(transaction, goal):
     def tsi_cmp_key(tsi):
         return str(tsi.active)
 
-    TYPES = ('downgraded', 'erased', 'installed', 'reinstalled', 'upgraded', 'failed')
+    TYPES = ('downgraded',
+             'erased',
+             'erased_dep',
+             'installed',
+             'installed_dep',
+             'reinstalled',
+             'upgraded',
+             'failed')
     b = dnf.util.Bunch()
     for ttype in TYPES:
         b[ttype] = []
@@ -58,9 +65,16 @@ def _make_lists(transaction):
         if tsi.op_type == dnf.transaction.DOWNGRADE:
             b.downgraded.append(tsi)
         elif tsi.op_type == dnf.transaction.ERASE:
-            b.erased.append(tsi)
+            print(goal.get_reason(tsi.erased))
+            if tsi.erased and goal.get_reason(tsi.erased) == 'user':
+                b.erased.append(tsi)
+            else:
+                b.erased_dep.append(tsi)
         elif tsi.op_type == dnf.transaction.INSTALL:
-            b.installed.append(tsi)
+            if tsi.installed and goal.get_reason(tsi.installed) == 'user':
+                b.installed.append(tsi)
+            else:
+                b.installed_dep.append(tsi)
         elif tsi.op_type == dnf.transaction.REINSTALL:
             b.reinstalled.append(tsi)
         elif tsi.op_type == dnf.transaction.UPGRADE:
@@ -971,7 +985,7 @@ class Output(object):
         if transaction is None:
             return None
 
-        list_bunch = _make_lists(transaction)
+        list_bunch = _make_lists(transaction, self.base._goal)
         pkglist_lines = []
         data = {'n' : {}, 'v' : {}, 'r' : {}}
         a_wid = 0 # Arch can't get "that big" ... so always use the max.
@@ -1002,9 +1016,11 @@ class Output(object):
             return a_wid
 
         for (action, pkglist) in [(_('Installing'), list_bunch.installed),
+                                  (_('Installing resolved dependencies'), list_bunch.installed_dep),
                                   (_('Upgrading'), list_bunch.upgraded),
                                   (_('Reinstalling'), list_bunch.reinstalled),
                                   (_('Removing'), list_bunch.erased),
+                                  (_('Removing unused dependencies'), list_bunch.erased_dep),
                                   (_('Downgrading'), list_bunch.downgraded)]:
             lines = []
             for tsi in pkglist:
