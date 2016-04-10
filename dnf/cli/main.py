@@ -84,7 +84,7 @@ def _main(base, args):
     dnf.i18n.setup_stdout()
 
     # our core object for the cli
-    base.logging.presetup()
+    base._logging.presetup()
     cli = dnf.cli.cli.Cli(base)
 
     # do our cli parsing and config file setup
