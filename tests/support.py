@@ -152,7 +152,7 @@ def command_run(cmd, args):
 
 def mock_comps(seed_persistor):
     comps = dnf.comps.Comps()
-    comps.add_from_xml_filename(COMPS_PATH)
+    comps._add_from_xml_filename(COMPS_PATH)
 
     persistor = MockGroupPersistor()
     if seed_persistor:
